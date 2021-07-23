@@ -5,8 +5,6 @@
 //  Created by 세광 on 2021/07/23.
 //
 
-// 상속과 가상함수를 이용하여 코드 줄이기
-
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -25,40 +23,50 @@ const char* const LEVEL_HEADINGS[] = {
     "DEBUGING", "INFO", "WARNING", "ERROR", "FATAL"
 };
 
-class FileLogger {
+class Logger {
 public:
-    FileLogger(int minLevel, const string &fileName) : minLevel(minLevel) {
+    Logger(int minLevel) : minLevel(minLevel) {}
+    virtual ~Logger() {}
+    
+    void Log(const string &s, int level) {
+        if (level >= minLevel) {
+            doLogJob(s, level);
+        }
+    }
+    
+    int GetMinLevel() const { return minLevel; }
+    
+protected:
+    virtual void doLogJob(const string &s, int level) = 0;
+    int minLevel;
+};
+
+class FileLogger : public Logger {
+public:
+    FileLogger(int minLevel, const string &fileName) : Logger(minLevel) {
         logFile = fopen(fileName.c_str(), "a");
     }
     ~FileLogger() {
         fclose(logFile);
     }
 
-    void Log(const string &s, int level) {
-        if (level >= minLevel)
-            fprintf(logFile, "[%s] %s\n", LEVEL_HEADINGS[level], s.c_str());
+protected:
+    void doLogJob(const string &s, int level) {
+        fprintf(logFile, "[%s] %s\n", LEVEL_HEADINGS[level], s.c_str());
     }
-    
-    int GetMinLevel() const { return minLevel; }
 
 private:
-    int minLevel;
     FILE *logFile;
 };
 
-class ConsoleLogger {
+class ConsoleLogger : public Logger {
 public:
-    ConsoleLogger(int minLevel) : minLevel(minLevel) {}
+    ConsoleLogger(int minLevel) : Logger(minLevel) {}
 
-    void Log(const string &s, int level) {
-        if (level >= minLevel)
-            printf("[%s] %s\n", LEVEL_HEADINGS[level], s.c_str());
+protected:
+    void doLogJob(const string &s, int level) {
+        printf("[%s] %s\n", LEVEL_HEADINGS[level], s.c_str());
     }
-    
-    int GetMinLevel() const { return minLevel; }
-
-private:
-    int minLevel;
 };
 
 int main() {
