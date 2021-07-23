@@ -69,14 +69,16 @@ protected:
     }
 };
 
+void testLogger(Logger &logger) {
+    logger.Log("abc", LogLevels::ERROR);
+    logger.Log("def", LogLevels::INFO);
+    logger.Log("ghi", LogLevels::WARNING);
+}
+
 int main() {
     ConsoleLogger c(LogLevels::WARNING);
-    c.Log("abc", LogLevels::ERROR);
-    c.Log("def", LogLevels::INFO);
-    c.Log("ghi", LogLevels::WARNING);
+    testLogger(c);
 
     FileLogger f(LogLevels::DEBUGING, "log.txt");
-    f.Log("abc", LogLevels::ERROR);
-    f.Log("def", LogLevels::INFO);
-    f.Log("ghi", LogLevels::WARNING);
+    testLogger(f);
 }
